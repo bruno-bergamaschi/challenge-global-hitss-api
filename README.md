@@ -59,7 +59,7 @@
    pnpm run dev
    ```
 
-## 🧪 Testes Automatizados
+## Testes Automatizados
 
 A API contém testes implementados com **Jest**, localizados em:
 
