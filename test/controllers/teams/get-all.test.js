@@ -48,7 +48,7 @@ describe('Testando tudo sobre obter todos os times', () => {
     test('GET /teams - deve retornar erro 400, porque os parâmetros de ordenação são inválidos', async () => {
       const res = await request(app)
         .get(`/teams`)
-        .query({ orderBy: 'academicRecord | name', sortBy: 'ASC' })
+        .query({ orderBy: 'name | color', sortBy: 'ASC' })
         .expect('Content-Type', /json/);
 
       expect(res.status).toBe(400);
@@ -64,7 +64,7 @@ describe('Testando tudo sobre obter todos os times', () => {
     test('GET /teams - deve retornar erro 400, porque o valor de ordenação sortBy é inválido', async () => {
       const res = await request(app)
         .get(`/teams`)
-        .query({ orderBy: 'academicRecord', sortBy: 'SORT' })
+        .query({ orderBy: 'name', sortBy: 'SORT' })
         .expect('Content-Type', /json/);
 
       expect(res.status).toBe(400);

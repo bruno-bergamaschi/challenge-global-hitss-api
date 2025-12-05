@@ -7,10 +7,10 @@ import { registerRecord } from '../../helpers/database.helper.js';
 commonTestHooks();
 
 describe('Testando tudo sobre obter um time por ID', () => {
-  let student = null;
+  let team = null;
 
   beforeEach(async () => {
-    student = await registerRecord('team', {
+    team = await registerRecord('team', {
       name: faker.company.name(),
       color: faker.color.rgb(),
     });
@@ -34,20 +34,18 @@ describe('Testando tudo sobre obter um time por ID', () => {
   });
 
   describe('Sucessos', () => {
-    test('GET /teams/:id - deve retornar 200 contendo o objeto de um estudante', async () => {
+    test('GET /teams/:id - deve retornar 200 contendo o objeto de um time', async () => {
       const res = await request(app)
-        .get(`/teams/${student.id}`)
+        .get(`/teams/${team.id}`)
         .expect('Content-Type', /json/);
 
       expect(res.status).toBe(200);
 
       expect(res.body).toBeDefined();
 
-      expect(res.body.id).toBe(student.id);
-      expect(res.body.name).toBe(student.name);
-      expect(res.body.email).toBe(student.email);
-      expect(res.body.document).toBe(student.document);
-      expect(res.body.academicRecord).toBe(student.academicRecord);
+      expect(res.body.id).toBe(team.id);
+      expect(res.body.name).toBe(team.name);
+      expect(res.body.color).toBe(team.color);
     });
   });
 });

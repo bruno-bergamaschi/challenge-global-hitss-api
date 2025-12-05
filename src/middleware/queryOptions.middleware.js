@@ -2,9 +2,20 @@ import CustomError from '../helpers/customError.js';
 import pkg from 'lodash';
 const { snakeCase, trim } = pkg;
 
+const LIMIT_ITENS_PER_PAGE = 100;
+
+function toInt(value, fallback) {
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) ? fallback : parsed;
+}
+
 export const createQueryOptions = (req, _, next) => {
-  let page = req?.query?.page || 1;
-  let perPage = req?.query?.perPage || 10;
+  const page = toInt(req.query.page, 1);
+  const perPage = toInt(req.query.perPage, 10);
+
+  if (perPage > LIMIT_ITENS_PER_PAGE) {
+    perPage = LIMIT_ITENS_PER_PAGE;
+  }
 
   if (!(page > 0 && perPage > 0)) {
     throw new CustomError(
@@ -17,7 +28,7 @@ export const createQueryOptions = (req, _, next) => {
   const limit = perPage;
   const offset = perPage * (page - 1);
 
-  const filter = req.query.search || null;
+  const search = req.query.search || null;
 
   let order = null;
 
@@ -53,7 +64,7 @@ export const createQueryOptions = (req, _, next) => {
   req.queryOptions = {
     limit,
     offset,
-    filter,
+    search,
     order,
   };
 

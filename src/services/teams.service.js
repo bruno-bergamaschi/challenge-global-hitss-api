@@ -17,7 +17,7 @@ const register = async ({ dbClient, entity }) => {
       color;
   `;
 
-  return await dbClient.query(query, values).then(({ rows }) => {
+  return dbClient.query(query, values).then(({ rows }) => {
     const [entity] = rows;
     return databaseHelper.toCamelCase(entity);
   });
@@ -41,14 +41,14 @@ const edit = async ({ dbClient, id, entity }) => {
       color;
   `;
 
-  return await dbClient.query(query, values).then(({ rows }) => {
+  return dbClient.query(query, values).then(({ rows }) => {
     const [entity] = rows;
     return databaseHelper.toCamelCase(entity);
   });
 };
 
 const deleteById = async ({ dbClient, id }) => {
-  return await databaseHelper.softDelete({
+  return databaseHelper.softDelete({
     dbClient,
     id,
     tableName: 'team',
@@ -56,12 +56,13 @@ const deleteById = async ({ dbClient, id }) => {
 };
 
 const getAll = async ({ dbClient, queryOptions }) => {
-  const { limit, offset, filter, order } = queryOptions;
+  const { limit, offset, search, order } = queryOptions;
   const values = [limit, offset];
+
   let searchParams = '';
 
-  if (filter) {
-    const index = values.push(`%${filter}%`);
+  if (search) {
+    const index = values.push(`%${search}%`);
 
     searchParams += ` AND t.name ILIKE $${index}`;
   }
@@ -77,7 +78,7 @@ const getAll = async ({ dbClient, queryOptions }) => {
     WHERE
       NOT t.is_deleted
     ${searchParams}
-    ${databaseHelper.buildOrderBy(order, 'name ASC', ['color'])}
+    ${databaseHelper.buildOrderBy(order, 'name ASC', ['name', 'color'])}
     LIMIT $1 OFFSET $2;
   `;
 

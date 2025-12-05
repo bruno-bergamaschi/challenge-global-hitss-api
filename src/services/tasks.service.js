@@ -23,7 +23,7 @@ const register = async ({ dbClient, entity }) => {
       status;
   `;
 
-  return await dbClient.query(query, values).then(({ rows }) => {
+  return dbClient.query(query, values).then(({ rows }) => {
     const [entity] = rows;
     return databaseHelper.toCamelCase(entity);
   });
@@ -49,21 +49,21 @@ const edit = async ({ dbClient, id, entity }) => {
       status;
   `;
 
-  return await dbClient.query(query, values).then(({ rows }) => {
+  return dbClient.query(query, values).then(({ rows }) => {
     const [entity] = rows;
     return databaseHelper.toCamelCase(entity);
   });
 };
 
 const deleteById = async ({ dbClient, id }) => {
-  return await databaseHelper.softDelete({
+  return databaseHelper.softDelete({
     dbClient,
     id,
     tableName: 'task',
   });
 };
 
-const getAll = async ({ dbClient, queryOptions, teamId }) => {
+export const getAll = async ({ dbClient, queryOptions, teamId }) => {
   const { limit, offset, filter, order } = queryOptions;
   const values = [limit, offset];
   let searchParams = '';
@@ -84,8 +84,12 @@ const getAll = async ({ dbClient, queryOptions, teamId }) => {
       t.id,
       t.title,
       t.description,
-      t.team_id,
       t.status,
+      jsonb_build_object(
+        'id', te.id,
+        'name', te.name,
+        'color', te.color
+      ) as team,
       COUNT(*) OVER() AS total_count
     FROM
       task t
@@ -96,6 +100,7 @@ const getAll = async ({ dbClient, queryOptions, teamId }) => {
       NOT t.is_deleted
     ${searchParams}
     ${databaseHelper.buildOrderBy(order, 'title ASC', [
+      'title',
       'description',
       'status',
     ])}
