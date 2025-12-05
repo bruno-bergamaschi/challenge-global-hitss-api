@@ -1,0 +1,33 @@
+{
+  "name": "@app/api",
+  "description": "Challenge Global Hitss - API",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --watch-path=src --watch-preserve-output --env-file=.env src/server.js",
+    "migrate:make": "knex migrate:make",
+    "migrations": "node --env-file=.env ./node_modules/knex/bin/cli.js migrate:latest",
+    "migrations:test": "node --env-file=.env.testing ./node_modules/knex/bin/cli.js migrate:latest",
+    "seeds:basic": "node --env-file=.env ./src/database/run-basic-seeds.js",
+    "test": "cross-env NODE_ENV=test npm run migrations:test && cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --config=jest.config.cjs --runInBand --detectOpenHandles"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.20.0",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "knex": "^3.1.0",
+    "lodash": "^4.17.21",
+    "pg": "^8.16.3",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.2.3",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
+  }
+}
