@@ -1,5 +1,6 @@
 import { teamsService } from '../services/teams.service.js';
 import { tasksService } from '../services/tasks.service.js';
+import { teamTasksService } from '../services/team_tasks.service.js';
 import CustomError from '../helpers/customError.js';
 import {
   checkValidValue,
@@ -15,21 +16,31 @@ const _internalServerError = () => {
   );
 };
 
-const _getEntities = async ({ dbClient, teamId, taskId }) => {
+const _getEntities = async ({ dbClient, teamIds, taskId }) => {
   const entities = {
-    team: null,
+    teamIds: null,
     task: null,
   };
 
-  if (teamId) {
-    entities.team = await executeService({
-      service: teamsService.getById({
-        dbClient,
-        id: teamId,
+  if (teamIds && teamIds.length) {
+    const ids = [];
+
+    await Promise.all(
+      teamIds.map(async (id) => {
+        const team = await executeService({
+          service: teamsService.getById({
+            dbClient,
+            id,
+          }),
+          entity: 'Time',
+          id,
+        });
+
+        ids.push(team.id);
       }),
-      entity: 'Time',
-      id: teamId,
-    });
+    );
+
+    entities.teamIds = ids;
   }
 
   if (taskId) {
@@ -40,6 +51,7 @@ const _getEntities = async ({ dbClient, teamId, taskId }) => {
       }),
       entity: 'Tarefa',
       id: taskId,
+      isFemaleEntity: true,
     });
   }
 
@@ -50,9 +62,9 @@ const register = async ({ dbConnection, body }) => {
   const dbClient = await dbConnection.write.connect();
 
   try {
-    await _getEntities({
+    const { teamIds } = await _getEntities({
       dbClient,
-      teamId: body.teamId,
+      teamIds: body.teamIds,
     });
 
     await dbClient.query('BEGIN');
@@ -61,6 +73,20 @@ const register = async ({ dbConnection, body }) => {
       dbClient,
       entity: body,
     });
+
+    if (teamIds) {
+      await Promise.all(
+        teamIds.map((id) => {
+          teamTasksService.register({
+            dbClient,
+            entity: {
+              teamId: id,
+              taskId: registeredEntity.id,
+            },
+          });
+        }),
+      );
+    }
 
     await dbClient.query('COMMIT');
 
@@ -128,16 +154,21 @@ const edit = async ({ dbConnection, body, id }) => {
   }
 };
 
-const deleteById = async ({ dbConnection, taskId }) => {
+const deleteById = async ({ dbConnection, id }) => {
   const dbClient = await dbConnection.write.connect();
 
   try {
     const { task } = await _getEntities({
       dbClient,
-      taskId,
+      taskId: id,
     });
 
     await dbClient.query('BEGIN');
+
+    await teamTasksService.deleteById({
+      dbClient,
+      id: task.id,
+    });
 
     const deletedEntity = await tasksService.deleteById({
       dbClient,

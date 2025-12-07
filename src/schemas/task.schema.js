@@ -9,7 +9,9 @@ const register = z.object({
     .min(1, 'deve ter pelo menos 1 caractere')
     .max(150, 'deve ter no máximo 200 caracteres'),
   description: z.string(string),
-  teamId: z.int('deve ser um número'),
+  teamIds: z
+    .array(z.int('deve ser um número'), 'deve ser uma lista')
+    .optional(),
   status: z.enum(taskStatusEnum, {
     error: `deve ser ${Object.values(taskStatusEnum).join(', ')}`,
   }),
@@ -17,9 +19,9 @@ const register = z.object({
 
 const edit = register
   .pick({
-    name: true,
-    color: true,
-    isActive: true,
+    title: true,
+    description: true,
+    status: true,
   })
   .partial();
 

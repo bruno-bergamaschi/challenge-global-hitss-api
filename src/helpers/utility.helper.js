@@ -1,11 +1,13 @@
 import CustomError from './customError.js';
 
-const executeService = async ({ service, entity, id }) => {
+const executeService = async ({ service, entity, id, isFemaleEntity }) => {
   const result = await service;
 
   if (entity && !result) {
     throw new CustomError(
-      `${entity} com ID '${id}' não encontrado.`,
+      `${entity} com ID '${id}' não ${
+        isFemaleEntity ? 'encontrada' : 'encontrado'
+      }.`,
       404,
       '404-entity-not-found',
     );

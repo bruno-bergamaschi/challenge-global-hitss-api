@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { taskStatusEnum } from '../../enums/task-status.enum.js';
 
 export async function seed(knex) {
-  const TEAMS_TO_CREATE = 5;
+  const TEAMS_TO_CREATE = 1;
   const TASKS_PER_TEAM = 3;
 
   await knex.transaction(async (trx) => {
@@ -28,12 +28,16 @@ export async function seed(knex) {
         tasksToInsert.push({
           title: faker.lorem.paragraph({ min: 1, max: 1 }),
           description: faker.lorem.paragraph({ min: 1, max: 3 }),
-          team_id: team.id,
           status: statuses[i] || taskStatusEnum.PENDING,
         });
       }
-    }
 
-    await trx('task').insert(tasksToInsert);
+      const tasks = await trx('task').insert(tasksToInsert).returning('id');
+      const teamsTasksToInsert = tasks.map((task) => {
+        return { team_id: team.id, task_id: task.id };
+      });
+
+      await trx('team_task').insert(teamsTasksToInsert);
+    }
   });
 }

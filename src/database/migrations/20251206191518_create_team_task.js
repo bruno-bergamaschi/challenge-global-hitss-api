@@ -1,18 +1,9 @@
 export function up(knex) {
-  return knex.schema.createTable('task', (table) => {
+  return knex.schema.createTable('team_task', (table) => {
     table.increments('id').primary();
 
-    table.string('title', 250).notNullable();
-    table.text('description').notNullable();
-
-    table
-      .enum('status', null, {
-        useNative: true,
-        enumName: 'task_status',
-        existingType: true,
-      })
-      .notNullable()
-      .defaultTo('pending');
+    table.integer('team_id').references('id').inTable('team').notNullable();
+    table.integer('task_id').references('id').inTable('task').notNullable();
 
     table
       .timestamp('created_at', { useTz: true })
@@ -29,5 +20,5 @@ export function up(knex) {
 }
 
 export function down(knex) {
-  return knex.schema.dropTable('task');
+  return knex.schema.dropTable('team_task');
 }

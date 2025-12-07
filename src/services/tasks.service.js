@@ -1,25 +1,22 @@
 import { databaseHelper } from '../helpers/database.js';
 
 const register = async ({ dbClient, entity }) => {
-  const { title, description, status, teamId } = entity;
-  const values = [title, description, status, teamId];
+  const { title, description, status } = entity;
+  const values = [title, description, status];
 
   const query = `
     INSERT INTO task (
       title,
       description,
-      status,
-      team_id
+      status
     ) VALUES (
       $1,
       $2,
-      $3,
-      $4
+      $3
      ) RETURNING
       id,
       title,
       description,
-      team_id,
       status;
   `;
 
@@ -85,20 +82,31 @@ export const getAll = async ({ dbClient, queryOptions, teamId }) => {
       t.title,
       t.description,
       t.status,
-      jsonb_build_object(
-        'id', te.id,
-        'name', te.name,
-        'color', te.color
-      ) as team,
-      COUNT(*) OVER() AS total_count
+      json_agg(
+        jsonb_build_object(
+          'id', te.id,
+          'name', te.name,
+          'color', te.color
+        )
+      ) as teams,
+      COUNT(*) over() AS total_count
     FROM
       task t
-    INNER JOIN team te
-      ON te.id = t.team_id
+    LEFT JOIN team_task tt
+      ON
+      tt.task_id = t.id
+      AND NOT tt.is_deleted
+    LEFT JOIN team te
+      ON
+      te.id = tt.team_id
       AND NOT te.is_deleted
     WHERE
       NOT t.is_deleted
     ${searchParams}
+    GROUP BY
+      t.id,
+      t.description,
+      t.status
     ${databaseHelper.buildOrderBy(order, 'title ASC', [
       'title',
       'description',
@@ -120,12 +128,31 @@ const getById = async ({ dbClient, id }) => {
       t.id,
       t.title,
       t.description,
-      t.team_id,
-      t.status
+      t.status,
+      json_agg(
+        jsonb_build_object(
+          'id', te.id,
+          'name', te.name,
+          'color', te.color
+        )
+      ) as teams
     FROM
       task t
+    LEFT JOIN team_task tt
+      ON
+      tt.task_id = t.id
+      AND NOT tt.is_deleted
+    LEFT JOIN team te
+      ON
+      te.id = tt.team_id
+      AND NOT te.is_deleted
     WHERE
-      t.id = $1
+      NOT t.is_deleted
+      AND t.id = $1
+    GROUP BY
+      t.id,
+      t.description,
+      t.status
   `;
 
   return dbClient.query(query, values).then(({ rows }) => {
