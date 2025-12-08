@@ -7,7 +7,7 @@ const register = z.object({
   title: z
     .string(string)
     .min(1, 'deve ter pelo menos 1 caractere')
-    .max(150, 'deve ter no máximo 200 caracteres'),
+    .max(150, 'deve ter no máximo 150 caracteres'),
   description: z.string(string),
   teamIds: z
     .array(z.int('deve ser um número'), 'deve ser uma lista')
