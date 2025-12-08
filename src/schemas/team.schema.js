@@ -7,8 +7,8 @@ const register = z.object({
     .string(string)
     .min(1, 'deve ter pelo menos 1 caractere')
     .max(150, 'deve ter no máximo 150 caracteres'),
-  color: z.string('Deve ser no formato #RRGGBB.').regex(/^#([A-Fa-f0-9]{6})$/, {
-    message: 'Deve ser no formato #RRGGBB.',
+  color: z.string('deve ser no formato #RRGGBB.').regex(/^#([A-Fa-f0-9]{6})$/, {
+    message: 'deve ser no formato #RRGGBB.',
   }),
 });
 

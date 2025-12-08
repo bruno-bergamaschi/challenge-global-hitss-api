@@ -10,7 +10,10 @@ const register = z.object({
     .max(150, 'deve ter no máximo 150 caracteres'),
   description: z.string(string),
   teamIds: z
-    .array(z.int('deve ser um número'), 'deve ser uma lista')
+    .array(
+      z.int('deve ser um array de números'),
+      'deve ser um array de números',
+    )
     .optional(),
   status: z.enum(taskStatusEnum, {
     error: `deve ser ${Object.values(taskStatusEnum).join(', ')}`,

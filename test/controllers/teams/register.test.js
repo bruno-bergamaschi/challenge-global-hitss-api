@@ -58,7 +58,7 @@ describe('Testando tudo sobre registrar um time', () => {
       expect(res.body.details).toBe("'name' deve ter pelo menos 1 caractere");
     });
 
-    test("POST /teams - deve retornar erro 400, porque 'name' deve ter no máximo 200 caracteres", async () => {
+    test("POST /teams - deve retornar erro 400, porque 'name' deve ter no máximo 150 caracteres", async () => {
       const payload = {
         ...makePayload(),
         name: faker.string.alphanumeric(201),
@@ -76,7 +76,7 @@ describe('Testando tudo sobre registrar um time', () => {
       expect(res.body.details).toBeDefined();
       expect(res.body.message).toBeDefined();
 
-      expect(res.body.details).toBe("'name' deve ter no máximo 200 caracteres");
+      expect(res.body.details).toBe("'name' deve ter no máximo 150 caracteres");
     });
 
     test("POST /teams - deve retornar erro 400, porque 'color' é inválido", async () => {
@@ -97,9 +97,7 @@ describe('Testando tudo sobre registrar um time', () => {
       expect(res.body.details).toBeDefined();
       expect(res.body.message).toBeDefined();
 
-      expect(res.body.details).toBe(
-        "'color' Cor inválida. Use o formato #RRGGBB.",
-      );
+      expect(res.body.details).toBe("'color' deve ser no formato #RRGGBB.");
     });
   });
 

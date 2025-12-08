@@ -61,7 +61,7 @@ describe('Testando tudo sobre editar um aluno', () => {
       expect(res.body.details).toBe("'name' deve ter pelo menos 1 caractere");
     });
 
-    test("PATCH /teams/:id - deve retornar erro 400, porque 'name' deve ter no máximo 200 caracteres", async () => {
+    test("PATCH /teams/:id - deve retornar erro 400, porque 'name' deve ter no máximo 150 caracteres", async () => {
       const payload = {
         ...makePayload(),
         name: faker.string.alphanumeric(201),
@@ -79,7 +79,7 @@ describe('Testando tudo sobre editar um aluno', () => {
       expect(res.body.details).toBeDefined();
       expect(res.body.message).toBeDefined();
 
-      expect(res.body.details).toBe("'name' deve ter no máximo 200 caracteres");
+      expect(res.body.details).toBe("'name' deve ter no máximo 150 caracteres");
     });
 
     test("PATCH /teams/:id - deve retornar erro 400, porque 'color' é inválido", async () => {
@@ -100,9 +100,7 @@ describe('Testando tudo sobre editar um aluno', () => {
       expect(res.body.details).toBeDefined();
       expect(res.body.message).toBeDefined();
 
-      expect(res.body.details).toBe(
-        "'color' Cor inválida. Use o formato #RRGGBB.",
-      );
+      expect(res.body.details).toBe("'color' deve ser no formato #RRGGBB.");
     });
 
     test('PATCH /teams/:id - deve retornar erro 404, porque o time com o ID informado não existe', async () => {
